@@ -32,6 +32,34 @@ router.post('/changePassword', user.changePassword);
 /* token. */
 router.post('/verifytoken', user.verifytoken);
 
+/* signature. */
+router.post('/getsignature',user.saveavatar);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* test. */
 router.get('/test', function (req, res) {
 

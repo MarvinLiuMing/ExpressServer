@@ -8,6 +8,7 @@ var UserSchema = new mongoose.Schema({
     type: String
   },
   password: String,
+  avatarUrl: String,
   // 0: nomal user
   // 1: verified user
   // 2: professonal user

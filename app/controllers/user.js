@@ -79,7 +79,7 @@ exports.signin = function (req, res) {
       }
 
       if (isMatch) {
-        var token = jwt.sign(user, 'app.get(superSecret)', {
+        var token = jwt.sign({ username: user.username, iat: Math.floor(Date.now() / 1000) - 30 }, 'app.get(superSecret)', {
           // 'expiresInMinutes':1440
         });
         //        req.session.save(function(err){})
@@ -190,15 +190,53 @@ exports.adminRequired = function (req, res, next) {
 }
 exports.verifytoken = function (req, res, next) {
   var token = req.body.token
-  console.log(token)
-  jwt.verify(token, 'app.get(superSecret)', function (err, decoded) {
+  var resjson = { status: 401, message: "token不存在", success: false }
+  var resu = verifyTokenExist(token)
+  if (resu != "FALSE") {
+    resjson.status = 200
+    resjson.message = "验证通过"
+  }
+  return res.json(resjson);
+}
+
+
+exports.saveavatar = function (req, res, next) {
+  var reqjson = req.body
+  var _user = showUserInfo(verifyTokenExist(reqjson.token))
+  _user.avatarUrl = reqjson.imageUrl;
+  _user.save(function (err, user) {
     if (err) {
-      return res.json({ success: false, message: 'token信息错误.' + err });
-    } else {
-      // 如果没问题就把解码后的信息保存到请求中，供后面的路由使用
-      req.api_user = decoded;
-      console.dir(req.api_user);
-      next();
+      console.log(err)
+      resjson = {
+        success:false,
+        errormsg: err,
+        status: "500",
+      }
     }
-  });
+    resjson = {
+      success:true,
+      errormsg: "",
+      status: "200",
+    }
+    res.json(resjson)
+  })
+}
+
+
+function showUserInfo(username) {
+  User.findOne({ username: userInfo.username }, function (err, user) {
+    if (err) { console.log(err) }
+    if (!user) { return new User(); }
+    user.password = "imageUrl";
+    return user;
+  })
+}
+
+
+function verifyTokenExist(token) {
+  Token.findOne({ 'token': token }, function (err, _token) {
+    if (err) return err;
+    if (!_token) return 'FALSE';
+    return _token.username;
+  })
 }
