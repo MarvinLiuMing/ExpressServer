@@ -33,10 +33,14 @@ exports.signup = function (req, res) {
     }
 
     if (user) {
-      var jsonfile = { title: 'signup', head: '!!!mes error!!!' };
-      return res.render('signup', jsonfile)
+      resjson = {
+        errorCode: 102,
+        status: "200",
+      }
+      return res.json(jsonfile)
     }
     else {
+      console.log(_user)
       user = new User(_user)
       console.log("new user " + user.password)
       user.save(function (err, user) {
@@ -44,12 +48,12 @@ exports.signup = function (req, res) {
         if (err) {
           console.log(err)
           resjson = {
-            errormsg: err,
-            status: "500",
+            errorCode: 103,
+            status: "200",
           }
         }
         resjson = {
-          errormsg: "",
+          errorCode: 100,
           status: "200",
         }
         res.json(resjson)
@@ -70,7 +74,10 @@ exports.signin = function (req, res) {
     }
 
     if (!user) {
-      return res.redirect('/')
+      return res.json({
+        errorCode: 101,
+        status: "200",
+      })
     }
 
     user.comparePassword(password, function (err, isMatch) {
@@ -84,29 +91,25 @@ exports.signin = function (req, res) {
         });
         //        req.session.save(function(err){})
 
-        users = User.fetch(function (err, users) {
-          console.log(token)
-          var tokeninfo = {
-            users: users,
-            token: token
-          }
-          token = new Token(tokeninfo)
-          token.save(function (err, token) {
-            if (err) { console.log(err) }
-          })
+        token = new Token(tokeninfo)
+        token.save(function (err, token) {
+          if (err) { console.log(err) }
+        })
 
-          var resjson = {
-            status: "200",
-            users: users,
-            token: token
-          }
-          return res.json(resjson);
-          //return res.render('userlist', { users: users,token:token })
-        });
-
+        user.password = "";
+        var resjson = {
+          errorCode: 100,
+          status: "200",
+          user: user,
+          token: token
+        }
+        return res.json(resjson);
       }
       else {
-        return res.redirect('/')
+        return res.json({
+          errorCode: 104,
+          status: "200",
+        });
       }
     })
   })
@@ -145,7 +148,12 @@ exports.changePassword = function (req, res, next) {
 
   User.findOne({ username: userInfo.username }, function (err, user) {
     if (err) { console.log(err) }
-    if (!user) { res.render('changePassword', { head: "用户不存在" }); }
+    if (!user) {
+      return res.json({
+        errorCode: 101,
+        status: "200",
+      })
+    }
 
     user.comparePassword(userInfo.password, function (err, isMatch) {
       if (err) { console.log(err) }
@@ -153,16 +161,21 @@ exports.changePassword = function (req, res, next) {
       if (isMatch) {
 
         user.EncryptionPas(userInfo.newpassword, function (hash) {
-          console.log("hash : " + hash)
           user.update({ password: hash }, function (err, raw) {
             if (err) return handleError(err);
-            console.log('The raw response from Mongo was ', raw);
-            res.render('index');
+
+            return res.json({
+              errorCode: 100,
+              status: "200",
+            });
           });
         })
       }
       else {
-        res.render('changePassword', { head: "密码错误" });
+        return res.json({
+          errorCode: 104,
+          status: "200",
+        });
       }
     })
   })
@@ -190,32 +203,30 @@ exports.adminRequired = function (req, res, next) {
 }
 exports.verifytoken = function (req, res, next) {
   var token = req.body.token
-  var resjson = { status: 401, message: "token不存在", success: false }
-  var resu = verifyTokenExist(token)
-  if (resu != "FALSE") {
-    resjson.status = 200
-    resjson.message = "验证通过"
+  var resjson = {
+    status: 200,
+    errorCode: 104
   }
+  var resu = verifyTokenExist(token)
   return res.json(resjson);
 }
 
 
 exports.saveavatar = function (req, res, next) {
   var reqjson = req.body
-  var _user = showUserInfo(verifyTokenExist(reqjson.token))
+  verifyTokenExist(reqjson.token)
+  var _user = this.session.user
   _user.avatarUrl = reqjson.imageUrl;
   _user.save(function (err, user) {
     if (err) {
       console.log(err)
       resjson = {
-        success:false,
-        errormsg: err,
-        status: "500",
+        errorCode: 103,
+        status: "200",
       }
     }
     resjson = {
-      success:true,
-      errormsg: "",
+      errorCode: 100,
       status: "200",
     }
     res.json(resjson)
@@ -236,7 +247,31 @@ function showUserInfo(username) {
 function verifyTokenExist(token) {
   Token.findOne({ 'token': token }, function (err, _token) {
     if (err) return err;
-    if (!_token) return 'FALSE';
-    return _token.username;
+    if (!_token) {
+      this.body = {
+        status: 401,
+        success: false,
+        err: '用户没登陆'
+      }
+      return res.json(this.body);
+    }
+    this.session.user = showUserInfo(_token.username)
   })
+}
+
+
+exports.testmethod1 = function (req, res, next) {
+  User.findOne({ username: "Marvin" }, function (err, user) {
+    this.body = {
+      success: false
+    }
+    req.session.user = user
+      next()
+  })
+
+}
+
+exports.testmethod2 = function (req, res, next) {
+  console.log(req.session.user)
+  return res.json(this.body)
 }

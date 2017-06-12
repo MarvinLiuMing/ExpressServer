@@ -33,7 +33,10 @@ router.post('/changePassword', user.changePassword);
 router.post('/verifytoken', user.verifytoken);
 
 /* signature. */
-router.post('/getsignature',user.saveavatar);
+router.get('/getsignature',user.saveavatar);
+
+
+router.get('/testuser',user.testmethod2);
 
 
 
