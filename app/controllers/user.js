@@ -5,6 +5,7 @@ var User = mongoose.model('User')
 require("../models/token")
 var Token = mongoose.model('Token')
 var jwt = require('jsonwebtoken');
+var Q = require('Q')
 
 // index 
 exports.showindex = function (req, res) {
@@ -90,7 +91,10 @@ exports.signin = function (req, res) {
           // 'expiresInMinutes':1440
         });
         //        req.session.save(function(err){})
-
+        var tokeninfo = {
+          token: token,
+          username: user.username
+        }
         token = new Token(tokeninfo)
         token.save(function (err, token) {
           if (err) { console.log(err) }
@@ -115,12 +119,20 @@ exports.signin = function (req, res) {
   })
 }
 
-// logout
-exports.logout = function (req, res) {
-  delete req.session.user
-  //delete app.locals.user
-
-  res.redirect('/')
+// signout
+exports.signout = function (req, res) {
+  if (req.session.user != null) {
+    delete req.session.user;
+    res.json({
+      status: 200,
+      errorCode: 100
+    })
+  } else {
+    res.json({
+      status: 200,
+      errorCode: 107  //用户没有登陆
+    })
+  }
 }
 
 // userlist page
@@ -203,19 +215,35 @@ exports.adminRequired = function (req, res, next) {
 }
 exports.verifytoken = function (req, res, next) {
   var token = req.body.token
-  var resjson = {
-    status: 200,
-    errorCode: 104
-  }
-  var resu = verifyTokenExist(token)
-  return res.json(resjson);
+  var verifyflag = req.body.verifyflag
+  Token.findByToken(token, function (err, _token) {
+    if (err) return err;
+    if (!_token) {
+      return res.json({
+        status: 200,
+        errorCode: 105
+      });
+    }
+    //req.session.user = showUserInfo(_token.username)
+    showUserInfo(_token.username, function (err, user) {
+      req.session.user = user;
+      if (verifyflag === "true") {
+      return res.json({
+        status: 200,
+        errorCode: 100
+      });
+    }
+    next();
+    })
+    
+  })
 }
 
 
 exports.saveavatar = function (req, res, next) {
   var reqjson = req.body
-  verifyTokenExist(reqjson.token)
-  var _user = this.session.user
+  var _user = req.session.user
+  console.log("saveavatar ：" + _user)
   _user.avatarUrl = reqjson.imageUrl;
   _user.save(function (err, user) {
     if (err) {
@@ -234,39 +262,47 @@ exports.saveavatar = function (req, res, next) {
 }
 
 
-function showUserInfo(username) {
-  User.findOne({ username: userInfo.username }, function (err, user) {
+function showUserInfo(username, cb) {
+  User.findOne({ username: username }, function (err, user) {
     if (err) { console.log(err) }
     if (!user) { return new User(); }
     user.password = "imageUrl";
-    return user;
+
+    return cb(err, user);
   })
 }
 
 
-function verifyTokenExist(token) {
-  Token.findOne({ 'token': token }, function (err, _token) {
+exports.verifyTokenExist = function (req, res, nexy) {
+  console.log("in  verifyTokenExist")
+
+  Token.findByToken(token, function (err, _token) {
     if (err) return err;
     if (!_token) {
-      this.body = {
-        status: 401,
+      return res.json({
+        status: 200,
         success: false,
         err: '用户没登陆'
-      }
-      return res.json(this.body);
+      });
     }
-    this.session.user = showUserInfo(_token.username)
+    console.log("verifyTokenExist")
+    req.session.user = showUserInfo(_token.username)
+    next();
   })
+  //console.log("verifyTokenExist :"+ Token.findOne({token:token}))
+  console.log("out verifyTokenExist : " + req.session.user)
+
 }
 
 
 exports.testmethod1 = function (req, res, next) {
+  console.log("testmethod1:" + req.session.user.username)
   User.findOne({ username: "Marvin" }, function (err, user) {
     this.body = {
       success: false
     }
     req.session.user = user
-      next()
+    next()
   })
 
 }

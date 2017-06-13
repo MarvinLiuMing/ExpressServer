@@ -2,16 +2,19 @@ var express = require('express');
 var router = express.Router();
 var assert = require('assert');
 var user = require("../app/controllers/user")
+var article = require("../app/controllers/article")
 
 
 /* index */
 router.get('/', user.showindex);
 
-/* login */
+/* signin */
 router.get('/signin', user.showSignin);
 
 router.post('/signin', user.signin);
 
+/* signin */
+router.post('/signout', user.signout);
 
 /* sign up. */
 router.get('/signup', user.showSignup);
@@ -33,10 +36,22 @@ router.post('/changePassword', user.changePassword);
 router.post('/verifytoken', user.verifytoken);
 
 /* signature. */
-router.get('/getsignature',user.saveavatar);
+router.post('/getsignature', user.verifytoken, user.saveavatar);
+
+/* signature. */
+router.post('/loadArticles', article.loadArticles);
 
 
-router.get('/testuser',user.testmethod2);
+
+
+
+
+
+
+
+
+
+router.get('/testuser', user.testmethod1, user.testmethod2);
 
 
 
@@ -71,7 +86,7 @@ router.get('/test', function (req, res) {
     console.log("!!!!intest!!!!!")
     res.json({
         status: "200",
-        data: "Marvin" 
+        data: "Marvin"
     })
 });
 router.post('/test', function (req, res) {

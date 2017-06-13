@@ -23,4 +23,18 @@ var TokenSchema = new mongoose.Schema({
 })
 
 
+TokenSchema.statics = {
+  fetch: function (cb) {
+    return this
+      .find({})
+      .sort('meta.updateAt')
+      .exec(cb)
+  },
+  findByToken: function (token, cb) {
+    return this
+      .findOne({ token: token })
+      .exec(cb)
+  }
+}
+
 module.exports = TokenSchema;
