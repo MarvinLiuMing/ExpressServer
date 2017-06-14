@@ -38,8 +38,10 @@ router.post('/verifytoken', user.verifytoken);
 /* signature. */
 router.post('/getsignature', user.verifytoken, user.saveavatar);
 
-/* signature. */
+/* Articles. */
 router.post('/loadArticles', article.loadArticles);
+
+router.post('/AddArticles', user.verifytoken, article.AddArticles);
 
 
 

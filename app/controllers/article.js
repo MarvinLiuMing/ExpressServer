@@ -20,3 +20,25 @@ exports.loadArticles = function (req, res) {
         })
     })
 }
+
+exports.AddArticles = function (req, res) {
+    var reqInfo = req.body
+    var articleFSave = new Article();
+    articleFSave.title = reqInfo.title
+    articleFSave.author = req.session.user.username
+    articleFSave.content = reqInfo.content
+
+    articleFSave.save(function (err, art) {
+        if (err) {
+            resjson = {
+                errorCode: 106,
+                status: "200",
+            }
+        }
+        resjson = {
+            errorCode: 100,
+            status: "200",
+        }
+        return res.json(resjson)
+    });
+}

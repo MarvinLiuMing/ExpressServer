@@ -32,7 +32,7 @@ var UserSchema = new mongoose.Schema({
 
 UserSchema.pre('save', function (next) {
   var user = this
-console.log(user)
+console.log("pre : "+user)
   if (this.isNew) {
     this.meta.createAt = this.meta.updateAt = Date.now()
   }

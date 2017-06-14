@@ -3,7 +3,7 @@ var mongoose = require('mongoose')
 var ArticleSchema = new mongoose.Schema({
   title: String,
   author: String,
-  body: String,
+  content: String,
   comments: [{ username: String, commentTittle: String, commentContent: String, }],
   date: { type: Date, default: Date.now },
   hidden: Boolean
