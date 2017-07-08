@@ -44,8 +44,16 @@ router.post('/loadArticles', article.loadArticles);
 router.post('/AddArticles', user.verifytoken, article.AddArticles);
 
 
+router.get('/test', function (req, res) {
 
+    res.setHeader("Access-Control-Allow-Origin", "*");
 
+    console.log("!!!!intest!!!!!")
+    res.json({
+        status: "200",
+        data: "Marvin" 
+    })
+});
 
 
 

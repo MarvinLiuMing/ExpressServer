@@ -68,7 +68,11 @@ exports.signin = function (req, res) {
   var _user = req.body
   var name = _user.username
   var password = _user.password
-
+  console.log("name:" +name)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+  res.setHeader('Access-Control-Max-Age', '86400')
   User.findOne({ username: name }, function (err, user) {
     if (err) {
       console.log(err)
@@ -101,18 +105,23 @@ exports.signin = function (req, res) {
         })
 
         user.password = "";
+
+  console.log("true")
         var resjson = {
-          errorCode: 100,
-          status: "200",
-          user: user,
-          token: token
+          "status": 200,
+          "errorCode": "100",
+          "user": "user",
+          "token": "token"
         }
+
         return res.json(resjson);
       }
       else {
+
+  console.log("false")
         return res.json({
-          errorCode: 104,
-          status: "200",
+          "status": "200",
+          "errorCode": "104",
         });
       }
     })
