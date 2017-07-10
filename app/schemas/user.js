@@ -53,13 +53,19 @@ console.log("pre : "+user)
 
 
 UserSchema.methods = {
-  comparePassword: function (_password, cb) {
-    bcrypt.compare(_password, this.password, function (err, isMatch) {
-      if (err) return cb(err)
+  // comparePassword: function (_password, cb) {
+  //   bcrypt.compare(_password, this.password, function (err, isMatch) {
+  //     if (err) return cb(err)
 
+  //     cb(null, isMatch)
+  //   })
+  //   //cb(null, true)
+  // },
+  comparePassword: function (_password, cb) {
+    if(_password== this.password)  
+      {isMatch = true}
+    else isMatch =false
       cb(null, isMatch)
-    })
-    //cb(null, true)
   },
   EncryptionPas: function (_password, cb) {
     bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {

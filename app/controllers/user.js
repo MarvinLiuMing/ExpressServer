@@ -38,12 +38,11 @@ exports.signup = function (req, res) {
         errorCode: 102,
         status: "200",
       }
-      return res.json(jsonfile)
+      return res.json(resjson)
     }
     else {
       console.log(_user)
       user = new User(_user)
-      console.log("new user " + user.password)
       user.save(function (err, user) {
 
         if (err) {
@@ -68,7 +67,7 @@ exports.signin = function (req, res) {
   var _user = req.body
   var name = _user.username
   var password = _user.password
-  console.log("name:" +name)
+  console.log("name:" +password)
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST,OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -84,7 +83,7 @@ exports.signin = function (req, res) {
         status: "200",
       })
     }
-
+console.log("user"+user)
     user.comparePassword(password, function (err, isMatch) {
       if (err) {
         console.log(err)
@@ -106,19 +105,16 @@ exports.signin = function (req, res) {
 
         user.password = "";
 
-  console.log("true")
         var resjson = {
           "status": 200,
           "errorCode": "100",
-          "user": "user",
-          "token": "token"
+          "user": user,
+          "token": token
         }
 
         return res.json(resjson);
       }
       else {
-
-  console.log("false")
         return res.json({
           "status": "200",
           "errorCode": "104",
