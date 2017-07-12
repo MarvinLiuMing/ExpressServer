@@ -41,8 +41,9 @@ router.post('/getsignature', user.verifytoken, user.saveavatar);
 /* Articles. */
 router.post('/loadArticles', article.loadArticles);
 
-router.post('/AddArticles', user.verifytoken, article.AddArticles);
+//router.post('/AddArticles', user.verifytoken, article.AddArticles);
 
+router.post('/AddArticles', article.AddArticles);
 
 router.get('/test', function (req, res) {
 
