@@ -4,7 +4,7 @@ var ArticleSchema = new mongoose.Schema({
   title: String,
   author: String,
   content: String,
-  imgs: [{ path: String }],
+  imgs: [ String ],
   comments: [{ username: String, commentTittle: String, commentContent: String, }],
   date: { type: Date, default: Date.now },
   hidden: Boolean
