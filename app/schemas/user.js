@@ -1,5 +1,5 @@
 var mongoose = require('mongoose')
-var bcrypt = require('bcrypt')
+//var bcrypt = require('bcrypt')
 var SALT_WORK_FACTOR = 10
 
 var UserSchema = new mongoose.Schema({
@@ -67,17 +67,20 @@ UserSchema.methods = {
     else isMatch =false
       cb(null, isMatch)
   },
-  EncryptionPas: function (_password, cb) {
-    bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
+  // EncryptionPas: function (_password, cb) {
+  //   bcrypt.genSalt(SALT_WORK_FACTOR, function (err, salt) {
 
-      if (err) return err
+  //     if (err) return err
 
-      bcrypt.hash(_password, salt, function (err, hash) {
-        if (err) return err
+  //     bcrypt.hash(_password, salt, function (err, hash) {
+  //       if (err) return err
 
-        return cb(hash)
-      })
-    })
+  //       return cb(hash)
+  //     })
+  //   })
+  // }
+    EncryptionPas: function (_password, cb) {
+    return cb(_password)
   }
 }
 
