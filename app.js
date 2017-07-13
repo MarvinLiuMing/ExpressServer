@@ -64,7 +64,7 @@ app.use(function (err, req, res, next) {
 //app.use(express.multipart())
 
 
-app.listen(3001, function () {
+app.listen(80, function () {
   
 })
 app.locals.moment = require('moment')
