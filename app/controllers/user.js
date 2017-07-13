@@ -5,7 +5,6 @@ var User = mongoose.model('User')
 require("../models/token")
 var Token = mongoose.model('Token')
 var jwt = require('jsonwebtoken');
-var Q = require('Q')
 
 // index 
 exports.showindex = function (req, res) {
